@@ -1,54 +1,70 @@
-#include <gmp.h>
 #include <gmpxx.h>
 
-// Function to calculate factorial
-void factorial(mpz_class &result, unsigned long n) {
-    mpz_set_ui(result.get_mpz_t(), 1);
-    for (unsigned long i = 1; i <= n; ++i) {
-        mpz_mul_ui(result.get_mpz_t(), result.get_mpz_t(), i);
-    }
+// Set working precision (in bits)
+const unsigned long PRECISION_BITS = 10000; // ~3000 decimal digits
+
+// Chudnovsky constants
+const mpz_class C = 426880;
+const mpz_class L = 13591409;
+const mpz_class X = 640320;
+const mpz_class X3 = X * X * X;
+
+// Computes a single Chudnovsky term at index k: returns it in `term`
+void chudnovsky_term(mpf_class &term, unsigned long k) {
+    mpf_set_default_prec(PRECISION_BITS);
+
+    mpz_class six_k_fact = 1;
+    mpz_class three_k_fact = 1;
+    mpz_class k_fact = 1;
+    mpz_class num, denom;
+    mpz_class x_pow;
+
+    // Compute k!, (3k)!, (6k)!
+    for (unsigned long i = 1; i <= k; ++i)
+        k_fact *= i;
+    for (unsigned long i = 1; i <= 3 * k; ++i)
+        three_k_fact *= i;
+    for (unsigned long i = 1; i <= 6 * k; ++i)
+        six_k_fact *= i;
+
+    // Compute (-1)^k
+    int sign = (k % 2 == 0) ? 1 : -1;
+
+    // x^3k
+    x_pow = 1;
+    for (unsigned long i = 0; i < k; ++i)
+        x_pow *= X3;
+
+    // Numerator
+    num = sign * six_k_fact * (L + 545140134 * k);
+
+    // Denominator
+    mpz_class k_fact_cubed = k_fact * k_fact * k_fact;
+    denom = three_k_fact * k_fact_cubed * x_pow;
+
+    // Convert to mpf_class
+    mpf_class f_num(num);
+    mpf_class f_denom(denom);
+
+    term = f_num / f_denom;
 }
 
-// Function to calculate the nth term of the Chudnovsky series
-void chudnovsky_term(mpz_class &numerator, mpz_class &denominator, unsigned long n) {
-    mpz_class factorial_6n, factorial_3n, factorial_n;
-    factorial(factorial_6n, 6 * n);
-    factorial(factorial_3n, 3 * n);
-    factorial(factorial_n, n);
+// Calculates pi using the Chudnovsky algorithm with `terms` number of terms
+void calculate_pi(mpf_class &pi, unsigned long terms) {
+    mpf_set_default_prec(PRECISION_BITS);
 
-    mpz_class C = 545140134;
-    mpz_class L = 13591409 + C * n;
+    mpf_class sum = 0.0;
+    mpf_class term;
 
-    // Calculate X = (-262537412640768000)^n
-    mpz_class X;
-    mpz_pow_ui(X.get_mpz_t(), mpz_class(-262537412640768000).get_mpz_t(), n);
-
-    // Calculate numerator and denominator
-    numerator = factorial_6n * L;
-
-    mpz_class factorial_n_cubed;
-    mpz_pow_ui(factorial_n_cubed.get_mpz_t(), factorial_n.get_mpz_t(), 3); // factorial_n^3
-
-    denominator = factorial_3n * factorial_n_cubed * X;
-}
-
-// Function to calculate pi using Chudnovsky's algorithm
-void calculate_pi(mpf_class &pi, unsigned long precision) {
-    mpf_set_default_prec(precision * 3.32193); // Set precision in bits
-    mpf_class sum(0, precision);
-    mpf_class term(0, precision);
-
-    mpz_class numerator, denominator;
-    for (unsigned long n = 0; n < precision; ++n) {
-        chudnovsky_term(numerator, denominator, n);
-        term = mpf_class(numerator) / mpf_class(denominator);
+    for (unsigned long k = 0; k < terms; ++k) {
+        chudnovsky_term(term, k);
         sum += term;
-
-        if (term == 0) {
-            break; // Stop if the term becomes zero
-        }
     }
 
-    mpf_class constant(426880 * sqrt(10005), precision);
-    pi = constant / sum;
+    // Final multiplication: pi = C * sqrt(10005) / sum
+    mpf_class sqrt_val;
+    mpf_sqrt_ui(sqrt_val.get_mpf_t(), 10005);
+    sqrt_val *= C;
+
+    pi = sqrt_val / sum;
 }
