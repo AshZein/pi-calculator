@@ -1,17 +1,40 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -I/opt/homebrew/include
 LDFLAGS = -L/opt/homebrew/lib -lgmp -lgmpxx
-TARGET = pi_calc
-SRCS = chudnovsky.cpp main.cpp
-OBJS = $(SRCS:.cpp=.o)
+PTHREAD_FLAGS = -pthread
 
-all: $(TARGET)
+# Targets
+TARGET_SINGLE = pi_calc
+TARGET_THREADED = pi_threaded_calc
 
-$(TARGET): $(OBJS)
+# Source files
+SRCS_SINGLE = chudnovsky.cpp main.cpp
+OBJS_SINGLE = $(SRCS_SINGLE:.cpp=.o)
+
+SRCS_THREADED = threaded_pi.cpp
+OBJS_THREADED = $(SRCS_THREADED:.cpp=.o)
+
+# Default target builds both executables
+all: $(TARGET_SINGLE) $(TARGET_THREADED)
+
+# Rule for non-threaded version
+$(TARGET_SINGLE): $(OBJS_SINGLE)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
+# Rule for threaded version
+$(TARGET_THREADED): $(OBJS_THREADED)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PTHREAD_FLAGS)
+
+# Generic compilation rule
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
+# Clean both executables and all object files
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS_SINGLE) $(OBJS_THREADED) $(TARGET_SINGLE) $(TARGET_THREADED)
+
+# Build only the single-threaded version
+single: $(TARGET_SINGLE)
+
+# Build only the threaded version
+threaded: $(TARGET_THREADED)
