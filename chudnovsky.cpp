@@ -1,7 +1,7 @@
 #include <gmpxx.h>
 
 // Set working precision (in bits)
-const unsigned long PRECISION_BITS = 10000; // ~3000 decimal digits
+#define PRECISION_BITS 100000 // Precision for GMP calculations
 
 // Chudnovsky constants
 const mpz_class C = 426880;
@@ -11,41 +11,32 @@ const mpz_class X3 = X * X * X;
 
 // Computes a single Chudnovsky term at index k: returns it in `term`
 void chudnovsky_term(mpf_class &term, unsigned long k) {
-    mpf_set_default_prec(PRECISION_BITS);
+    // Constants used in the Chudnovsky algorithm
+    static const mpz_class C = 640320;
+    static const mpz_class C3 = C * C * C;
 
-    mpz_class six_k_fact = 1;
-    mpz_class three_k_fact = 1;
-    mpz_class k_fact = 1;
-    mpz_class num, denom;
-    mpz_class x_pow;
+    // Compute factorials
+    mpz_class k_fact, three_k_fact, six_k_fact;
+    mpz_fac_ui(k_fact.get_mpz_t(), k);
+    mpz_fac_ui(three_k_fact.get_mpz_t(), 3 * k);
+    mpz_fac_ui(six_k_fact.get_mpz_t(), 6 * k);
 
-    // Compute k!, (3k)!, (6k)!
-    for (unsigned long i = 1; i <= k; ++i)
-        k_fact *= i;
-    for (unsigned long i = 1; i <= 3 * k; ++i)
-        three_k_fact *= i;
-    for (unsigned long i = 1; i <= 6 * k; ++i)
-        six_k_fact *= i;
+    // Numerator: (-1)^k * (6k)! * (545140134k + 13591409)
+    mpz_class num = six_k_fact * (545140134 * k + 13591409);
+    if (k % 2 != 0) num = -num;
 
-    // Compute (-1)^k
-    int sign = (k % 2 == 0) ? 1 : -1;
+    // Denominator: (3k)! * (k!)^3 * (640320^3)^k
+    mpz_class denom = three_k_fact * k_fact * k_fact * k_fact;
+    mpz_class C3_k;
+    mpz_pow_ui(C3_k.get_mpz_t(), C3.get_mpz_t(), k);
+    denom *= C3_k;
 
-    // x^3k
-    x_pow = 1;
-    for (unsigned long i = 0; i < k; ++i)
-        x_pow *= X3;
+    // Convert to floating point with correct precision
+    mpf_class f_num(num, PRECISION_BITS);
+    mpf_class f_denom(denom, PRECISION_BITS);
 
-    // Numerator
-    num = sign * six_k_fact * (L + 545140134 * k);
-
-    // Denominator
-    mpz_class k_fact_cubed = k_fact * k_fact * k_fact;
-    denom = three_k_fact * k_fact_cubed * x_pow;
-
-    // Convert to mpf_class
-    mpf_class f_num(num);
-    mpf_class f_denom(denom);
-
+    // Compute term
+    term.set_prec(PRECISION_BITS);
     term = f_num / f_denom;
 }
 

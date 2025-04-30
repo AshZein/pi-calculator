@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -I/opt/homebrew/include
-LDFLAGS = -L/opt/homebrew/lib -lgmp -lgmpxx
+CXXFLAGS = -std=c++17 -I/usr/include
+LDFLAGS = -L/usr/lib -lgmp -lgmpxx
 PTHREAD_FLAGS = -pthread
 
 # Targets
@@ -11,7 +11,7 @@ TARGET_THREADED = pi_threaded_calc
 SRCS_SINGLE = chudnovsky.cpp main.cpp
 OBJS_SINGLE = $(SRCS_SINGLE:.cpp=.o)
 
-SRCS_THREADED = threaded_pi.cpp
+SRCS_THREADED = chudnovsky.cpp threaded_pi.cpp
 OBJS_THREADED = $(SRCS_THREADED:.cpp=.o)
 
 # Default target builds both executables

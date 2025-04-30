@@ -12,28 +12,29 @@ pthread_cond_t cond_var; // Condition variable for thread synchronization
 pthread_barrier_t barrier; // Barrier for thread synchronization
 
 unsigned long total_terms; // Total number of terms to compute. 10 is default
+#define PRECISION_BITS 100000 // Precision for GMP calculations
+#define DEFAULT_TERMS 10
 
 // Chudnovsky constants
 const mpz_class C = 426880;
 
 void chudnovsky_term(mpf_class &term, unsigned long k);
 
-int start_work(){
-    mpf_class term;
-    mpf_class thread_sum = 0.0;
+void* start_work(void* arg) {
+    long thread_id = *(long*)arg; // Cast the argument to a long pointer and dereference
+    delete (long*)arg; // Free the dynamically allocated memory
 
-    // Get the thread's ID
-    long thread_id = (long)pthread_self();
-    std::cout << "Thread ID: " << thread_id << std::endl;
+    mpf_class term(0, PRECISION_BITS); // Initialize term with precision
+    mpf_class thread_sum(0, PRECISION_BITS);
 
     unsigned long start_term = thread_id * (total_terms / NUM_THREADS);
     unsigned long end_term = (thread_id + 1) * (total_terms / NUM_THREADS);
-    
+
     if (thread_id == NUM_THREADS - 1) {
         end_term = total_terms; // Last thread takes the remainder
-    } 
+    }
 
-    for (unsigned long k = start_term; k < end_term; k++){
+    for (unsigned long k = start_term; k < end_term; k++) {
         // Compute the k-th term using the Chudnovsky algorithm
         chudnovsky_term(term, k);
         thread_sum += term;
@@ -46,19 +47,10 @@ int start_work(){
 
     pthread_barrier_wait(&barrier); // Wait for all threads to finish
 
-    if (thread_id == 0) {
-        // Notify all threads that the sum is ready
-        pthread_cond_broadcast(&cond_var);
-    } else {
-        // Wait for the sum to be ready
-        pthread_cond_wait(&cond_var, &sum_mutex);
-    }
+    return nullptr; // Return nullptr to satisfy the void* return type
 }
 
 int main(int argc, char* argv[]) {
-    const unsigned long PRECISION_BITS = 100000;
-    const unsigned long DEFAULT_TERMS = 10;
-
     mpf_set_default_prec(PRECISION_BITS);
 
     // Get number of terms from argv, or use default
@@ -79,9 +71,12 @@ int main(int argc, char* argv[]) {
     pthread_mutex_init(&sum_mutex, nullptr); // Initialize the mutex
     pthread_cond_init(&cond_var, nullptr); // Initialize the condition variable
     pthread_barrier_init(&barrier, nullptr, NUM_THREADS); // Initialize the barrier
+
     for (int i = 0; i < NUM_THREADS; ++i) {
-        pthread_create(&threads[i], nullptr, start_work, (void*)i); // Create threads
+        long* thread_id = new long(i); // Dynamically allocate memory for thread ID
+        pthread_create(&threads[i], nullptr, start_work, thread_id); // Create threads
     }
+
     for (int i = 0; i < NUM_THREADS; ++i) {
         pthread_join(threads[i], nullptr); // Wait for threads to finish
     }
@@ -98,7 +93,7 @@ int main(int argc, char* argv[]) {
         out.precision(pi.get_prec() * 0.30103); // bits to decimal digits
         out << std::fixed << pi << std::endl;
         out.close();
-        std::cout << "π written to pi_threaded_output.txt using " << terms << " terms\n";
+        std::cout << "π written to pi_threaded_output.txt using " << total_terms << " terms\n";
     } else {
         std::cerr << "Failed to open output file.\n";
         return 1;

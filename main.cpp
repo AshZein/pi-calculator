@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     mpf_class pi;
     calculate_pi(pi, terms);
 
-    std::ofstream out("pi_output.txt");
+    std::ofstream out("pi_single_output.txt");
     if (out.is_open()) {
         out.precision(pi.get_prec() * 0.30103); // bits to decimal digits
         out << std::fixed << pi << std::endl;
