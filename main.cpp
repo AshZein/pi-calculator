@@ -29,10 +29,16 @@ int main(int argc, char* argv[]) {
 
     std::ofstream out("pi_single_output.txt");
     if (out.is_open()) {
-        out.precision(pi.get_prec() * 0.30103); // bits to decimal digits
+        // Calculate the number of accurate digits
+        unsigned long accurate_digits = terms * 14;
+
+        // Set the precision for the output stream
+        out.precision(accurate_digits);
         out << std::fixed << pi << std::endl;
         out.close();
-        std::cout << "π written to pi_output.txt using " << terms << " terms\n";
+
+        std::cout << "π written to pi_single_output.txt using " << terms
+                  << " terms, truncated to " << accurate_digits << " digits.\n";
     } else {
         std::cerr << "Failed to open output file.\n";
         return 1;
