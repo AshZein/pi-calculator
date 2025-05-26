@@ -7,6 +7,7 @@
 
 int NUM_THREADS = 4; // Number of threads to use
 mpf_class sum = 0.0; // Global sum variable
+int *thread_sums;
 pthread_mutex_t sum_mutex; // Mutex for thread-safe access to sum
 pthread_cond_t cond_var; // Condition variable for thread synchronization
 pthread_barrier_t barrier; // Barrier for thread synchronization
@@ -68,6 +69,12 @@ int main(int argc, char* argv[]) {
     mpf_class pi;
 
     pthread_t threads[NUM_THREADS]; // Array to hold thread IDs
+
+    thread_sums = new int[NUM_THREADS]; // Array to hold sums from each thread
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        thread_sums[i] = 0; // Initialize thread sums to zero
+    }
+    
     pthread_mutex_init(&sum_mutex, nullptr); // Initialize the mutex
     pthread_cond_init(&cond_var, nullptr); // Initialize the condition variable
     pthread_barrier_init(&barrier, nullptr, NUM_THREADS); // Initialize the barrier
