@@ -1,5 +1,5 @@
 #include <gmpxx.h>
-
+#include "chudnovsky.h"
 // Set working precision (in bits)
 #define PRECISION_BITS 100000 // Precision for GMP calculations
 
@@ -9,35 +9,30 @@ const mpz_class L = 13591409;
 const mpz_class X = 640320;
 const mpz_class X3 = X * X * X;
 
-// Computes a single Chudnovsky term at index k: returns it in `term`
 void chudnovsky_term(mpf_class &term, unsigned long k) {
-    // Constants used in the Chudnovsky algorithm
-    static const mpz_class C = 640320;
-    static const mpz_class C3 = C * C * C;
+    const mpz_class A = 13591409;
+    const mpz_class B = 545140134;
+    const mpz_class C = 640320;
+    const mpz_class C3_OVER_24 = (C * C * C) / 24;
 
-    // Compute factorials
-    mpz_class k_fact, three_k_fact, six_k_fact;
-    mpz_fac_ui(k_fact.get_mpz_t(), k);
-    mpz_fac_ui(three_k_fact.get_mpz_t(), 3 * k);
-    mpz_fac_ui(six_k_fact.get_mpz_t(), 6 * k);
+    mpz_class numerator;
+    mpz_class factorial_6k;
+    mpz_fac_ui(factorial_6k.get_mpz_t(), 6 * k);
+    numerator = factorial_6k * (A + B * k);
 
-    // Numerator: (-1)^k * (6k)! * (545140134k + 13591409)
-    mpz_class num = six_k_fact * (545140134 * k + 13591409);
-    if (k % 2 != 0) num = -num;
+    mpz_class factorial_3k, factorial_k;
+    mpz_fac_ui(factorial_3k.get_mpz_t(), 3 * k);
+    mpz_fac_ui(factorial_k.get_mpz_t(), k);
+    mpz_class denominator = factorial_3k * factorial_k * factorial_k * factorial_k;
+    mpz_class power_C3_OVER_24;
+    mpz_pow_ui(power_C3_OVER_24.get_mpz_t(), C3_OVER_24.get_mpz_t(), k);
+    denominator *= power_C3_OVER_24;
 
-    // Denominator: (3k)! * (k!)^3 * (640320^3)^k
-    mpz_class denom = three_k_fact * k_fact * k_fact * k_fact;
-    mpz_class C3_k;
-    mpz_pow_ui(C3_k.get_mpz_t(), C3.get_mpz_t(), k);
-    denom *= C3_k;
+    term = mpf_class(numerator) / mpf_class(denominator);
 
-    // Convert to floating point with correct precision
-    mpf_class f_num(num, PRECISION_BITS);
-    mpf_class f_denom(denom, PRECISION_BITS);
-
-    // Compute term
-    term.set_prec(PRECISION_BITS);
-    term = f_num / f_denom;
+    if (k % 2 != 0) {
+        term = -term;
+    }
 }
 
 // Calculates pi using the Chudnovsky algorithm with `terms` number of terms
