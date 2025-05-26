@@ -4,6 +4,7 @@
 #include <gmpxx.h>
 #include <cmath>
 #include <fstream>
+#include <chrono> // Include for timing
 
 #include "chudnovsky.h"
 
@@ -57,6 +58,9 @@ int main(int argc, char* argv[]) {
 
     mpf_class sum = 0.0; // Global sum
 
+    // Start timing
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     unsigned long current_term = 0;
     while (current_term < total_terms) {
         pthread_t threads[NUM_THREADS];
@@ -81,6 +85,10 @@ int main(int argc, char* argv[]) {
         current_term += terms_to_calculate; // Move to the next batch
     }
 
+    // End timing
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+
     mpf_class sqrt_val;
     mpf_sqrt_ui(sqrt_val.get_mpf_t(), 10005);
     sqrt_val *= C;
@@ -103,6 +111,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "Failed to open output file.\n";
         return 1;
     }
+
+    // Output the time taken
+    std::cout << "Time taken to calculate π: " << duration.count() << " milliseconds.\n";
 
     pthread_mutex_destroy(&term_mutex);
 

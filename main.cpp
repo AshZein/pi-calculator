@@ -2,6 +2,7 @@
 #include <fstream>
 #include <gmpxx.h>
 #include <cstdlib>
+#include <chrono> // For timing
 
 // Forward declaration
 void calculate_pi(mpf_class &pi, unsigned long terms);
@@ -25,7 +26,15 @@ int main(int argc, char* argv[]) {
     }
 
     mpf_class pi;
+
+    // Start timing
+    auto start_time = std::chrono::high_resolution_clock::now();
+
     calculate_pi(pi, terms);
+
+    // End timing
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
     std::ofstream out("calculated_outputs/pi_single_output.txt");
     if (out.is_open()) {
@@ -43,6 +52,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "Failed to open output file.\n";
         return 1;
     }
+
+    // Output the time taken
+    std::cout << "Time taken to calculate π: " << duration.count() << " milliseconds.\n";
 
     return 0;
 }
