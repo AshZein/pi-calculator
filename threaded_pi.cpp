@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     mpf_class pi = sqrt_val / sum;
 
-    std::ofstream out("pi_threaded_output.txt");
+    std::ofstream out("calculated_outputs/pi_threaded_output.txt");
     if (out.is_open()) {
         // Calculate the number of accurate digits
         unsigned long accurate_digits = total_terms * 14;

@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     mpf_class pi;
     calculate_pi(pi, terms);
 
-    std::ofstream out("pi_single_output.txt");
+    std::ofstream out("calculated_outputs/pi_single_output.txt");
     if (out.is_open()) {
         // Calculate the number of accurate digits
         unsigned long accurate_digits = terms * 14;

@@ -32,8 +32,8 @@ def compare_pi(pi1, pi2, preview=20):
     print(f"Matching digits before mismatch: {mismatch_index - 2}")  # exclude '3.'
 
 if __name__ == "__main__":
-    file1 = "pi_threaded_output.txt"
-    file2 = "pi_single_output.txt"
+    file1 = "calculated_outputs/pi_threaded_output.txt"
+    file2 = "calculated_outputs/pi_single_output.txt"
 
     pi1 = load_pi_digits(file1)
     pi2 = load_pi_digits(file2)
