@@ -34,3 +34,5 @@
 .vscode/
 pi_calculator
 pi_calc
+pi_single_output.txt
+pi_threaded_output.txt
