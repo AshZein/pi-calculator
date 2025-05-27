@@ -20,7 +20,7 @@ def compare_pi(pi1, pi2, preview=20):
 
     if mismatch_index == -1:
         print("All digits match (up to the shortest file length).")
-        return
+        return True
 
     print(f"Mismatch at digit #{mismatch_index}: {pi1[mismatch_index]} ≠ {pi2[mismatch_index]}")
     start = max(0, mismatch_index - preview)
@@ -30,6 +30,9 @@ def compare_pi(pi1, pi2, preview=20):
     print(f"Threaded   : ...{pi1[start:end]}...")
     print(f"Single-threaded: ...{pi2[start:end]}...")
     print(f"Matching digits before mismatch: {mismatch_index - 2}")  # exclude '3.'
+    
+    return False
+
 
 if __name__ == "__main__":
     file1 = "calculated_outputs/pi_threaded_output.txt"
@@ -38,4 +41,3 @@ if __name__ == "__main__":
     pi1 = load_pi_digits(file1)
     pi2 = load_pi_digits(file2)
 
-    compare_pi(pi1, pi2)
