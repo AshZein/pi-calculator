@@ -8,7 +8,7 @@
 
 #include "chudnovsky.h"
 
-int NUM_THREADS = 4; // Number of threads to use
+int NUM_THREADS = 2; // Number of threads to use
 std::vector<mpf_class> term_results; // Shared array for storing term results
 pthread_mutex_t term_mutex; // Mutex for thread-safe access to shared resources
 
@@ -51,6 +51,17 @@ int main(int argc, char* argv[]) {
         }
     } else {
         std::cout << "No term count provided. Using default: " << DEFAULT_TERMS << " terms.\n";
+    }
+
+    if (argc >= 3) {
+        NUM_THREADS = std::strtoul(argv[2], nullptr, 10);
+        if (NUM_THREADS == 0) {
+            std::cerr << "Invalid number of threads: " << argv[2] << "\n";
+            return 1;
+        }
+        std::cout << "Using " << NUM_THREADS << " threads.\n";
+    } else {
+        std::cout << "No thread count provided. Using default: " << NUM_THREADS << " threads.\n";
     }
 
     pthread_mutex_init(&term_mutex, nullptr);
