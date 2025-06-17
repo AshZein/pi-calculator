@@ -7,7 +7,7 @@ from datetime import datetime
 os.chdir("../")
 
 # Define the term increments
-term_increments = [10, 100, 500, 1000, 5000, 10000]
+term_increments = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000]
 
 # Paths to executables
 single_threaded_exec = "./pi_calc"
