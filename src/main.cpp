@@ -4,39 +4,43 @@
 #include <cstdlib>
 #include <chrono> // For timing
 
+#include "chudnovsky.h"
 // Forward declaration
 void calculate_pi(mpf_class &pi, unsigned long terms);
+threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
+
 
 int main(int argc, char* argv[]) {
-    const unsigned long PRECISION_BITS = 100000;
-    const unsigned long DEFAULT_TERMS = 10;
-
+    int num_threads = 1; // Default to single-threaded execution
+    int total_terms = 10; // Default number of terms
+    
     mpf_set_default_prec(PRECISION_BITS);
 
-    // Get number of terms from argv, or use default
-    unsigned long terms = DEFAULT_TERMS;
-    if (argc >= 2) {
-        terms = std::strtoul(argv[1], nullptr, 10);
-        if (terms == 0) {
-            std::cerr << "Invalid number of terms: " << argv[1] << "\n";
-            return 1;
+    for (int i = 1; i < argc; ++i) {
+        if (std::string(argv[i]) == "-d" && i + 1 < argc) {
+            total_terms = std::strtoul(argv[++i], nullptr, 10);
+        } else if (std::string(argv[i]) == "-t" && i + 1 < argc) {
+            num_threads = std::strtoul(argv[++i], nullptr, 10);
         }
-    } else {
-        std::cout << "No term count provided. Using default: " << DEFAULT_TERMS << " terms.\n";
     }
 
     mpf_class pi;
 
     // Start timing
     auto start_time = std::chrono::high_resolution_clock::now();
-
-    calculate_pi(pi, terms);
-
+    if (num_threads > 1) {
+        std::cout << "Using " << num_threads << " threads to calculate π with" << total_terms << "terms.\n";
+        threaded_calculate_pi(pi, total_terms, num_threads);
+    } else {
+        std::cout << "Calculating π using a single thread with " << total_terms << " terms.\n";
+        calculate_pi(pi, terms);
+    }
+    
     // End timing
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-    std::ofstream out("calculated_outputs/pi_single_output.txt");
+    std::ofstream out("calculated_outputs/terms_"<< total_terms << "_threads_"<< num_threads <<"_pi__output.txt");
     if (out.is_open()) {
         // Calculate the number of accurate digits
         unsigned long accurate_digits = terms * 14;
@@ -46,7 +50,7 @@ int main(int argc, char* argv[]) {
         out << std::fixed << pi << std::endl;
         out.close();
 
-        std::cout << "π written to pi_single_output.txt using " << terms
+        std::cout << "π written to "calculated_outputs/terms_"<< total_terms << "_threads_"<< num_threads <<"_pi__output.txt".txt using " << terms
                   << " terms, truncated to " << accurate_digits << " digits.\n";
     } else {
         std::cerr << "Failed to open output file.\n";
