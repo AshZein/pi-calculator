@@ -37,3 +37,5 @@ pi_calc
 pi_threaded_calc
 pi_single_output.txt
 pi_threaded_output.txt
+.DS_Store
+pi_output.txt
