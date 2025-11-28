@@ -41,13 +41,13 @@ int main(int argc, char* argv[]) {
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
     // Build the filename first
-    std::string filename = "calculated_outputs/terms_" + std::to_string(total_terms) +
+    std::string filename = "../calculated_outputs/terms_" + std::to_string(total_terms) +
                            "_threads_" + std::to_string(num_threads) + "_pi__output.txt";
     
     // create the output file if not exists
-    std::ofstream dir_check("calculated_outputs/.dir_check");
+    std::ofstream dir_check("../calculated_outputs/.dir_check");
     if (!dir_check.is_open()) {
-        system("mkdir -p calculated_outputs");
+        system("mkdir -p ../calculated_outputs");
     }
 
     std::ofstream out(filename);
