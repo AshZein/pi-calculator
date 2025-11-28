@@ -30,19 +30,19 @@ all: $(TARGET_SINGLE) $(TARGET_THREADED)
 
 # Rule for non-threaded version
 $(TARGET_SINGLE): $(OBJS_SINGLE)
-    $(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 # Rule for threaded version
 $(TARGET_THREADED): $(OBJS_THREADED)
-    $(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PTHREAD_FLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PTHREAD_FLAGS)
 
 # Generic compilation rule
 %.o: %.cpp
-    $(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 
 # Clean both executables and all object files
 clean:
-    rm -f $(OBJS_SINGLE) $(OBJS_THREADED) $(TARGET_SINGLE) $(TARGET_THREADED)
+	rm -f $(OBJS_SINGLE) $(OBJS_THREADED) $(TARGET_SINGLE) $(TARGET_THREADED)
 
 # Build only the single-threaded version
 single: $(TARGET_SINGLE)
