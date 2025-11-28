@@ -1,43 +1,79 @@
 import re
+from collections import deque
 
-def load_pi_digits(filename):
-    with open(filename, 'r') as f:
-        content = f.read().strip()
+def compare_pi_files(file1, file2, preview=20):
+    with open(file1, 'r') as f1, open(file2, 'r') as f2:
+        def next_digit_gen(f):
+            while True:
+                c = f.read(1)
+                if not c:
+                    return
+                if c == '3':
+                    yield c
+                    c = f.read(1)
+                    if c == '.':
+                        yield c
+                        break
+            while True:
+                c = f.read(1)
+                if not c:
+                    break
+                if c.isdigit():
+                    yield c
 
-    # Keep only the leading "3." and digits
-    match = re.match(r'^3\.(\d+)', content.replace('\n', '').replace(' ', ''))
-    if not match:
-        raise ValueError(f"File {filename} does not start with valid '3.xxx' format.")
-    
-    return '3.' + match.group(1)
+        gen1 = next_digit_gen(f1)
+        gen2 = next_digit_gen(f2)
 
-def compare_pi(pi1, pi2, preview=20):
-    mismatch_index = -1
-    for i, (d1, d2) in enumerate(zip(pi1, pi2)):
-        if d1 != d2:
-            mismatch_index = i
-            break
+        window1 = deque(maxlen=preview)
+        window2 = deque(maxlen=preview)
+        mismatch_index = -1
+        i = 0
 
-    if mismatch_index == -1:
-        print("All digits match (up to the shortest file length).")
-        return True
+        while True:
+            try:
+                d1 = next(gen1)
+            except StopIteration:
+                d1 = ''
+            try:
+                d2 = next(gen2)
+            except StopIteration:
+                d2 = ''
+            if not d1 and not d2:
+                break
+            window1.append(d1)
+            window2.append(d2)
+            if d1 != d2:
+                mismatch_index = i
+                break
+            i += 1
 
-    print(f"Mismatch at digit #{mismatch_index}: {pi1[mismatch_index]} ≠ {pi2[mismatch_index]}")
-    start = max(0, mismatch_index - preview)
-    end = mismatch_index + preview
+        if mismatch_index == -1:
+            print("All digits match (up to the shortest file length).")
+            return True
 
-    print("\nContext:")
-    print(f"Threaded   : ...{pi1[start:end]}...")
-    print(f"Single-threaded: ...{pi2[start:end]}...")
-    print(f"Matching digits before mismatch: {mismatch_index - 2}")  # exclude '3.'
-    
-    return False
+        # Read ahead for context after mismatch
+        after1 = []
+        after2 = []
+        for _ in range(preview):
+            try:
+                after1.append(next(gen1))
+            except StopIteration:
+                break
+        for _ in range(preview):
+            try:
+                after2.append(next(gen2))
+            except StopIteration:
+                break
 
+        print(f"Mismatch at digit #{mismatch_index}: {window1[-1]} ≠ {window2[-1]}")
+        print("\nContext:")
+        print(f"Generated  : ...{''.join(window1)}{''.join(after1)}...")
+        print(f"Reference  : ...{''.join(window2)}{''.join(after2)}...")
+        print(f"Matching digits before mismatch: {mismatch_index - 2}")  # exclude '3.'
+        return False
 
 if __name__ == "__main__":
-    file1 = "calculated_outputs/pi_threaded_output.txt"
-    file2 = "calculated_outputs/pi_single_output.txt"
-
-    pi1 = load_pi_digits(file1)
-    pi2 = load_pi_digits(file2)
+    file1 = "calculated_outputs/terms_60_threads_4_pi__output.txt"
+    reference_file = "pi_refs/pi-billion.txt"
+    compare_pi_files(file1, reference_file)
 
