@@ -15,25 +15,17 @@ endif
 PTHREAD_FLAGS = -pthread
 
 # Targets
-TARGET_SINGLE = pi_calc
-TARGET_THREADED = pi_threaded_calc
+TARGET = pi_calc
 
 # Source files
-SRCS_SINGLE = chudnovsky.cpp main.cpp
-OBJS_SINGLE = $(SRCS_SINGLE:.cpp=.o)
-
-SRCS_THREADED = chudnovsky.cpp threaded_pi.cpp
-OBJS_THREADED = $(SRCS_THREADED:.cpp=.o)
+SRCS = chudnovsky.cpp main.cpp threaded_pi.cpp
+OBJS = $(SRCS:.cpp=.o)
 
 # Default target builds both executables
-all: $(TARGET_SINGLE) $(TARGET_THREADED)
+all: $(TARGET)
 
 # Rule for non-threaded version
-$(TARGET_SINGLE): $(OBJS_SINGLE)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-
-# Rule for threaded version
-$(TARGET_THREADED): $(OBJS_THREADED)
+$(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PTHREAD_FLAGS)
 
 # Generic compilation rule
@@ -42,10 +34,4 @@ $(TARGET_THREADED): $(OBJS_THREADED)
 
 # Clean both executables and all object files
 clean:
-	rm -f $(OBJS_SINGLE) $(OBJS_THREADED) $(TARGET_SINGLE) $(TARGET_THREADED)
-
-# Build only the single-threaded version
-single: $(TARGET_SINGLE)
-
-# Build only the threaded version
-threaded: $(TARGET_THREADED)
+	rm -f *.o $(TARGET)

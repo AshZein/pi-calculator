@@ -7,7 +7,7 @@
 #include "chudnovsky.h"
 // Forward declaration
 void calculate_pi(mpf_class &pi, unsigned long terms);
-threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
+void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
 
 
 int main(int argc, char* argv[]) {
@@ -33,24 +33,34 @@ int main(int argc, char* argv[]) {
         threaded_calculate_pi(pi, total_terms, num_threads);
     } else {
         std::cout << "Calculating π using a single thread with " << total_terms << " terms.\n";
-        calculate_pi(pi, terms);
+        calculate_pi(pi, total_terms);
     }
     
     // End timing
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
 
-    std::ofstream out("calculated_outputs/terms_"<< total_terms << "_threads_"<< num_threads <<"_pi__output.txt");
+    // Build the filename first
+    std::string filename = "calculated_outputs/terms_" + std::to_string(total_terms) +
+                           "_threads_" + std::to_string(num_threads) + "_pi__output.txt";
+    
+    // create the output file if not exists
+    std::ofstream dir_check("calculated_outputs/.dir_check");
+    if (!dir_check.is_open()) {
+        system("mkdir -p calculated_outputs");
+    }
+
+    std::ofstream out(filename);
     if (out.is_open()) {
         // Calculate the number of accurate digits
-        unsigned long accurate_digits = terms * 14;
+        unsigned long accurate_digits = total_terms * 14;
 
         // Set the precision for the output stream
         out.precision(accurate_digits);
         out << std::fixed << pi << std::endl;
         out.close();
 
-        std::cout << "π written to "calculated_outputs/terms_"<< total_terms << "_threads_"<< num_threads <<"_pi__output.txt".txt using " << terms
+        std::cout << "π written to " << filename << " using " << total_terms
                   << " terms, truncated to " << accurate_digits << " digits.\n";
     } else {
         std::cerr << "Failed to open output file.\n";
