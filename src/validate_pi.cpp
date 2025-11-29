@@ -26,6 +26,9 @@ long long validate_pi_files(const std::string &myFile, const std::string &refFil
     char a, b;
     uint64_t index = 0;
 
+    std::string currentDigitMine = "";
+    std::string currentDigitRef = "";
+
     // Helper to get next digit from any stream
     auto nextDigit = [](std::ifstream &f, char &c) -> bool {
         while (f.get(c)) {
@@ -46,11 +49,24 @@ long long validate_pi_files(const std::string &myFile, const std::string &refFil
             return index;
         }
 
+        // reset buffers
+        if(currentDigitMine.length() == 50){
+            currentDigitMine = "";
+            currentDigitRef = "";
+        }
+
+        // add to current buffers
+        currentDigitMine += a;
+        currentDigitRef += b;
+
         index++;
 
         if (a != b) {
-            std::cout << "Mismatch at digit #" << index
+            std::cout << "\nMismatch at digit #" << index
                       << "   mine=" << a << "   ref=" << b << "\n";
+            
+            std::cout << "mine:\n" << currentDigitMine << "\n\nref:\n" << currentDigitRef << "\n\n";
+        
             return index;  // return where mismatch occurred
         }
     }
