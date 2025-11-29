@@ -5,6 +5,7 @@
 #include <chrono> // For timing
 
 #include "chudnovsky.h"
+#include "validate_pi.h"
 // Forward declaration
 void calculate_pi(mpf_class &pi, unsigned long terms);
 void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
@@ -66,6 +67,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "Failed to open output file.\n";
         return 1;
     }
+
+    // validate 
+    long long index = validate_pi_files(filename, "../pi_refs/pi-billion.txt");
 
     // Output the time taken
     std::cout << "Time taken to calculate π: " << duration.count() << " milliseconds.\n";

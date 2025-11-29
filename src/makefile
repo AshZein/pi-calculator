@@ -17,21 +17,23 @@ PTHREAD_FLAGS = -pthread
 # Targets
 TARGET = pi_calc
 
-# Source files
-SRCS = chudnovsky.cpp main.cpp threaded_pi.cpp
+# Source files (add validate_pi.cpp here)
+SRCS = chudnovsky.cpp main.cpp threaded_pi.cpp validate_pi.cpp
+
+# Auto-generate object files
 OBJS = $(SRCS:.cpp=.o)
 
-# Default target builds both executables
+# Default target
 all: $(TARGET)
 
-# Rule for non-threaded version
+# Link final executable
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) $(PTHREAD_FLAGS)
 
-# Generic compilation rule
+# Compile each .cpp into .o
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $<
 
-# Clean both executables and all object files
+# Clean
 clean:
 	rm -f *.o $(TARGET)
