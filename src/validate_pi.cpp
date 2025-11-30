@@ -51,8 +51,8 @@ long long validate_pi_files(const std::string &myFile, const std::string &refFil
 
         // reset buffers
         if(currentDigitMine.length() == 50){
-            currentDigitMine = "";
-            currentDigitRef = "";
+            currentDigitMine.erase(0, 1);
+            currentDigitRef.erase(0, 1);
         }
 
         // add to current buffers
