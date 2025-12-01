@@ -41,3 +41,5 @@ pi_threaded_output.txt
 pi_output.txt
 pi_refs
 calculated_outputs
+
+experiments/results/*
