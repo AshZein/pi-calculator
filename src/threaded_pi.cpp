@@ -39,10 +39,6 @@ void* calculate_term(void* arg) {
 }
 
 void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
-    unsigned long desired_digits = terms * 14;
-    unsigned long bits = static_cast<unsigned long>(desired_digits * 3.32193) + 1000; // add margin
-    mpf_set_default_prec(bits);
-
     total_terms = terms;
     if (total_terms == 0) {
         std::cerr << "Invalid number of terms: " << terms << "\n";
@@ -100,7 +96,4 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
     sqrt_val *= C;
 
     pi = sqrt_val / sum;
-
-    // std::ofstream out("calculated_outputs/pi_threaded_output.txt");
-    // if (out.is_open()) {
 }
