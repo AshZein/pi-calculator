@@ -13,10 +13,6 @@ std::vector<mpf_class>* term_results = nullptr; // Shared array for storing term
 pthread_mutex_t term_mutex; // Mutex for thread-safe access to shared resources
 
 unsigned long total_terms; // Total number of terms to compute
-// #define PRECISION_BITS 100000 // Precision for GMP calculations
-
-// // Chudnovsky constants
-// const mpz_class C = 426880;
 
 // Thread function to calculate a single term
 void* calculate_term(void* arg) {
@@ -53,7 +49,6 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
     }
 
     pthread_mutex_init(&term_mutex, nullptr);
-    // term_results.resize(total_terms, 0.0); // Initialize the shared array
     std::vector<mpf_class> term_results_local(total_terms, 0.0); // Local, not global
     term_results = &term_results_local;
 
