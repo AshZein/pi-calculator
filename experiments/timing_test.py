@@ -9,9 +9,12 @@ os.chdir("../src")
 # Define the term increments
 term_increments = [10, 100, 500, 1000, 5000, 10000]
 
+# threads
+threads = 6;
+
 # Paths to executables
 single_threaded_exec = ["./pi_calc", "-v"]
-multi_threaded_exec = ["./pi_calc", "-t", "4", "-v"]
+multi_threaded_exec = ["./pi_calc", "-t", str(threads), "-v"]
 
 # Results storage
 single_threaded_times = []
@@ -69,6 +72,8 @@ for terms in term_increments:
         print(f"Error: Could not extract time for multi-threaded run with {terms} terms.")
         multi_threaded_times.append(None)
 
+os.chdir("../experiments/results")
+
 # Plot the results
 plt.figure(figsize=(10, 6))
 plt.scatter(term_increments, single_threaded_times, color="blue", label="Single-Threaded", marker="o")
@@ -79,13 +84,13 @@ plt.plot(term_increments, multi_threaded_times, color="red", linestyle="--", alp
 # Add labels, legend, and title
 plt.xlabel("Number of Terms")
 plt.ylabel("Time Taken (ms)")
-plt.title("Execution Time: Single-Threaded vs Multi-Threaded π Calculation")
+plt.title(f"Execution Time: Single-Threaded vs Multi-Threaded ({threads}) π Calculation")
 plt.legend()
 plt.grid(True)
 
 # Save the plot
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-output_file = os.path.join(results_dir, f"sequential_threaded_time_{timestamp}.png")
+output_file = f"sequential_threaded_time_{timestamp}.png"
 plt.savefig(output_file)
 print(f"Graph saved as {output_file}")
 
