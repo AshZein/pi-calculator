@@ -14,12 +14,15 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
 int main(int argc, char* argv[]) {
     int num_threads = 1; // Default to single-threaded execution
     unsigned long total_terms = 10; // Default number of terms
+    bool verify = true;
 
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "-d" && i + 1 < argc) {
             total_terms = std::strtoul(argv[++i], nullptr, 10);
         } else if (std::string(argv[i]) == "-t" && i + 1 < argc) {
             num_threads = std::strtoul(argv[++i], nullptr, 10);
+        } else if (std::string(argv[i]) == -v && i + 1 < argc){
+            verify = false;
         }
     }
 
