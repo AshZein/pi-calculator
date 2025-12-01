@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
             total_terms = std::strtoul(argv[++i], nullptr, 10);
         } else if (std::string(argv[i]) == "-t" && i + 1 < argc) {
             num_threads = std::strtoul(argv[++i], nullptr, 10);
-        } else if (std::string(argv[i]) == -v && i + 1 < argc){
+        } else if (std::string(argv[i]) == "-v" && i + 1 < argc){
             verify = false;
         }
     }
