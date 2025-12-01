@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     }
 
     // validate 
-    long long index = validate_pi_files(filename, "../pi_refs/pi-billion.txt");
+    if (verify) long long index = validate_pi_files(filename, "../pi_refs/pi-billion.txt");
 
     // Output the time taken
     std::cout << "Time taken to calculate π: " << duration.count() << " milliseconds.\n";
