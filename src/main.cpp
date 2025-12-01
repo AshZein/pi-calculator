@@ -13,9 +13,7 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
 
 int main(int argc, char* argv[]) {
     int num_threads = 1; // Default to single-threaded execution
-    int total_terms = 10; // Default number of terms
-    
-    mpf_set_default_prec(PRECISION_BITS);
+    unsigned long total_terms = 10; // Default number of terms
 
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "-d" && i + 1 < argc) {
@@ -24,6 +22,10 @@ int main(int argc, char* argv[]) {
             num_threads = std::strtoul(argv[++i], nullptr, 10);
         }
     }
+
+    unsigned long desired_digits = total_terms * 14;
+    unsigned long bits = static_cast<unsigned long>(desired_digits * 3.32193) + 1000; // add margin
+    mpf_set_default_prec(bits);
 
     mpf_class pi;
 

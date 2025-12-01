@@ -29,10 +29,13 @@ void chudnovsky_term(mpf_class& term, unsigned long k) {
 
 void calculate_pi(mpf_class& pi, unsigned long terms) {
 
-    mpf_set_default_prec(PRECISION_BITS);
+    // mpf_set_default_prec(PRECISION_BITS);
+    unsigned long desired_digits = terms * 14;
+    unsigned long bits = (unsigned long)(desired_digits * 3.32193) + 1000; // margin
+    mpf_set_default_prec(bits);
 
-    mpf_class sum = 0;
-    mpf_class t;
+    mpf_class sum(0);
+    mpf_class t(0);
 
     for (unsigned long k = 0; k < terms; k++) {
         chudnovsky_term(t, k);

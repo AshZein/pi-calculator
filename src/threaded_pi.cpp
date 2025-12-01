@@ -9,7 +9,7 @@
 #include "chudnovsky.h"
 
 int NUM_THREADS = 2; // Number of threads to use
-std::vector<mpf_class> term_results; // Shared array for storing term results
+std::vector<mpf_class>* term_results = nullptr; // Shared array for storing term results
 pthread_mutex_t term_mutex; // Mutex for thread-safe access to shared resources
 
 unsigned long total_terms; // Total number of terms to compute
@@ -32,14 +32,16 @@ void* calculate_term(void* arg) {
 
     // Store the result in the shared array
     pthread_mutex_lock(&term_mutex);
-    term_results[term_index] = term;
+    (* term_results)[term_index] = term;
     pthread_mutex_unlock(&term_mutex);
 
     return nullptr;
 }
 
 void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
-    mpf_set_default_prec(PRECISION_BITS);
+    unsigned long desired_digits = terms * 14;
+    unsigned long bits = static_cast<unsigned long>(desired_digits * 3.32193) + 1000; // add margin
+    mpf_set_default_prec(bits);
 
     total_terms = terms;
     if (total_terms == 0) {
@@ -55,7 +57,9 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
     }
 
     pthread_mutex_init(&term_mutex, nullptr);
-    term_results.resize(total_terms, 0.0); // Initialize the shared array
+    // term_results.resize(total_terms, 0.0); // Initialize the shared array
+    std::vector<mpf_class> term_results_local(total_terms, 0.0); // Local, not global
+    term_results = &term_results_local;
 
     mpf_class sum = 0.0; // Global sum
 
@@ -80,7 +84,7 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
 
         // Perform reduction for the current batch
         for (unsigned long i = 0; i < terms_to_calculate; ++i) {
-            sum += term_results[current_term + i];
+            sum += (* term_results)[current_term + i];
         }
 
         current_term += terms_to_calculate; // Move to the next batch
@@ -92,6 +96,7 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
 
     mpf_class sqrt_val;
     mpf_sqrt_ui(sqrt_val.get_mpf_t(), 10005);
+    mpz_class C = 426880;
     sqrt_val *= C;
 
     pi = sqrt_val / sum;
