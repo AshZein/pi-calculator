@@ -13,22 +13,23 @@ std::vector<mpf_class>* term_results = nullptr; // Shared array for storing term
 pthread_mutex_t term_mutex; // Mutex for thread-safe access to shared resources
 
 unsigned long total_terms; // Total number of terms to compute
+unsigned long current_term = 0;
 
 // Thread function to calculate a single term
 void* calculate_term(void* arg) {
     unsigned long term_index = *(unsigned long*)arg;
     delete (unsigned long*)arg;
 
-    if (term_index >= total_terms) {
-        return nullptr; // Out of bounds, do nothing
-    }
+    // if (term_index >= total_terms) {
+    //     return nullptr; // Out of bounds, do nothing
+    // }
 
     mpf_class term;
     chudnovsky_term(term, term_index);
 
     // Store the result in the shared array
     pthread_mutex_lock(&term_mutex);
-    (* term_results)[term_index] = term;
+    (* term_results)[term_index - current_term] = term;
     pthread_mutex_unlock(&term_mutex);
 
     return nullptr;
@@ -49,7 +50,7 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
     }
 
     pthread_mutex_init(&term_mutex, nullptr);
-    std::vector<mpf_class> term_results_local(total_terms, 0.0); // Local, not global
+    std::vector<mpf_class> term_results_local(NUM_THREADS, 0.0); // Local, not global
     term_results = &term_results_local;
 
     mpf_class sum = 0.0; // Global sum
@@ -57,13 +58,12 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
     // Start timing
     auto start_time = std::chrono::high_resolution_clock::now();
 
-    unsigned long current_term = 0;
-    while (current_term < total_terms) {
+    while(current_term < total_terms){
         pthread_t threads[NUM_THREADS];
         unsigned long terms_to_calculate = std::min(static_cast<unsigned long>(NUM_THREADS), total_terms - current_term);
 
-        // Spawn threads to calculate the next batch of terms
-        for (unsigned long i = 0; i < terms_to_calculate; ++i) {
+        // spawn threads to calculate next batch of terms
+        for (unsigned long i = 0; i < terms_to_calculate; ++i){
             unsigned long* term_index = new unsigned long(current_term + i);
             pthread_create(&threads[i], nullptr, calculate_term, term_index);
         }
@@ -75,7 +75,7 @@ void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads){
 
         // Perform reduction for the current batch
         for (unsigned long i = 0; i < terms_to_calculate; ++i) {
-            sum += (* term_results)[current_term + i];
+            sum += (* term_results)[i];
         }
 
         current_term += terms_to_calculate; // Move to the next batch
