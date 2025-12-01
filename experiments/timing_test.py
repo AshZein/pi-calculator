@@ -4,14 +4,14 @@ import os
 from datetime import datetime
 
 # Change the working directory to the parent directory
-os.chdir("../")
+os.chdir("../src")
 
 # Define the term increments
-term_increments = [10, 100, 500, 1000, 5000, 10000, 50000, 100000, 500000, 1000000]
+term_increments = [10, 100, 500, 1000, 5000, 10000]
 
 # Paths to executables
-single_threaded_exec = "./pi_calc"
-multi_threaded_exec = "./pi_threaded_calc"
+single_threaded_exec = ["./pi_calc", "-v"]
+multi_threaded_exec = ["./pi_calc", "-t", "4", "-v"]
 
 # Results storage
 single_threaded_times = []
@@ -27,7 +27,7 @@ for terms in term_increments:
 
     # Run single-threaded executable
     single_start = subprocess.run(
-        [single_threaded_exec, str(terms)],
+        single_threaded_exec + ["-d", str(terms)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -49,7 +49,7 @@ for terms in term_increments:
 
     # Run multi-threaded executable
     multi_start = subprocess.run(
-        [multi_threaded_exec, str(terms)],
+        multi_threaded_exec + ["-d", str(terms)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
