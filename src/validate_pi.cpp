@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cctype>
+#include <cstdint>
 #include <string>
 
 // Compare two digit files character-by-character and report first mismatch.
