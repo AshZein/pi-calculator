@@ -13,7 +13,17 @@ void calculate_pi_gpu(mpf_class& pi, unsigned long terms){
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, 0);
 
-    int blocksize = chooseBlockSize(prop.warpsize, prop.maxThreadsPerBlock);
+    // gpu props for block size calculation
+    int warpSize = prop.warpsize;
+    int maxThreadsPerBlock = prop.maxThreadsPerBlock;
+    int numSM = prop.multiProcessorCount;
 
-    
+    int blockSize = chooseBlockSize(warpSize, maxThreadsPerBlock);
+
+    int blocksPerSM = 4;
+    int numBlocks = blocksPerSM * numSM;
+
+    int gridSize = (terms + blockSize - 1) / blockSize;
+    gridSize = std::max(gridSize, numBlocks);
 }
+
