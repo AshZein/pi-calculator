@@ -1,7 +1,7 @@
 import re
 from collections import deque
 
-def compare_pi_files(file1, file2, preview=20):
+def compare_pi_files(file1, file2, preview=100):
     with open(file1, 'r') as f1, open(file2, 'r') as f2:
         def next_digit_gen(f):
             while True:
@@ -73,7 +73,7 @@ def compare_pi_files(file1, file2, preview=20):
         return False
 
 if __name__ == "__main__":
-    file1 = "calculated_outputs/terms_60_threads_4_pi__output.txt"
+    file1 = "/Users/ashz/Desktop/Projects/pi-calculator/calculated_outputs/terms_3000_threads_1_pi__output.txt"
     reference_file = "pi_refs/pi-billion.txt"
     compare_pi_files(file1, reference_file)
 
