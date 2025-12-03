@@ -9,6 +9,7 @@ extern mpz_class A;
 extern mpz_class B;
 extern mpz_class C;
 extern mpz_class D;
+extern mpz_class E;
 
 
 void chudnovsky_term(mpf_class &term, unsigned long k);

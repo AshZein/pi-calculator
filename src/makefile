@@ -17,8 +17,8 @@ PTHREAD_FLAGS = -pthread
 # Targets
 TARGET = pi_calc
 
-# Source files (add validate_pi.cpp here)
-SRCS = chudnovsky.cpp main.cpp threaded_pi.cpp validate_pi.cpp
+# Source files
+SRCS = chudnovsky.cpp main.cpp threaded_pi.cpp validate_pi.cpp binary_split_chudnovsky.cpp
 
 # Auto-generate object files
 OBJS = $(SRCS:.cpp=.o)

@@ -7,6 +7,7 @@ mpz_class A = 13591409;
 mpz_class B = 545140134;
 mpz_class C = 640320;
 mpz_class D = 426880;
+mpz_class E = 10005;
 
 void chudnovsky_term(mpf_class& term, unsigned long k) {
     mpz_class num, denom;

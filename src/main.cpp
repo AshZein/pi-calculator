@@ -6,7 +6,8 @@
 
 #include "chudnovsky.h"
 #include "validate_pi.h"
-//#include "binary_split_chudnovsky.h"
+#include "binary_split_chudnovsky.h"
+
 // Forward declaration
 void calculate_pi(mpf_class &pi, unsigned long terms);
 void threaded_calculate_pi(mpf_class &pi, unsigned long terms, int threads);
@@ -16,6 +17,7 @@ int main(int argc, char* argv[]) {
     int num_threads = 1; // Default to single-threaded execution
     unsigned long total_terms = 10; // Default number of terms
     bool verify = true;
+    bool binarySplit = false;
 
     for (int i = 1; i < argc; ++i) {
         if (std::string(argv[i]) == "-d" && i + 1 < argc) {
@@ -24,6 +26,8 @@ int main(int argc, char* argv[]) {
             num_threads = std::strtoul(argv[++i], nullptr, 10);
         } else if (std::string(argv[i]) == "-v" && i + 1 < argc){
             verify = false;
+        } else if (std::string(argv[i]) == "-b"){
+            binarySplit = true;
         }
     }
 
@@ -35,8 +39,11 @@ int main(int argc, char* argv[]) {
 
     // Start timing
     auto start_time = std::chrono::high_resolution_clock::now();
-    if (num_threads > 1) {
-        std::cout << "Using " << num_threads << " threads to calculate π with" << total_terms << "terms.\n";
+    if (binarySplit){
+        std::cout << "Using binary splitting to calculate pi with " << total_terms << " terms.\n";
+        binarySplitPi(pi, total_terms);
+    }else if (num_threads > 1) {
+        std::cout << "Using " << num_threads << " threads to calculate π with" << total_terms << "t erms.\n";
         threaded_calculate_pi(pi, total_terms, num_threads);
     } else {
         std::cout << "Calculating π using a single thread with " << total_terms << " terms.\n";
