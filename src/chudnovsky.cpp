@@ -3,10 +3,12 @@
 // Set working precision (in bits)
 #define PRECISION_BITS 100000 // Precision for GMP calculations
 
-void chudnovsky_term(mpf_class& term, unsigned long k) {
-    const mpz_class A = 13591409;
-    const mpz_class B = 545140134;
+mpz_class A = 13591409;
+mpz_class B = 545140134;
+mpz_class C = 640320;
+mpz_class D = 426880;
 
+void chudnovsky_term(mpf_class& term, unsigned long k) {
     mpz_class num, denom;
     
     mpz_class f6k, f3k, fk;
@@ -19,7 +21,7 @@ void chudnovsky_term(mpf_class& term, unsigned long k) {
     denom = f3k * fk * fk * fk;
 
     mpz_class p;
-    mpz_pow_ui(p.get_mpz_t(), mpz_class(640320).get_mpz_t(), 3*k);
+    mpz_pow_ui(p.get_mpz_t(), C.get_mpz_t(), 3*k);
     denom *= p;
 
     term = mpf_class(num) / mpf_class(denom);
@@ -39,7 +41,7 @@ void calculate_pi(mpf_class& pi, unsigned long terms) {
     mpf_class sqrt10005;
     mpf_sqrt_ui(sqrt10005.get_mpf_t(), 10005);
 
-    mpf_class constant = 426880 * sqrt10005;
+    mpf_class constant = D * sqrt10005;
 
     pi = constant / sum;
 }
